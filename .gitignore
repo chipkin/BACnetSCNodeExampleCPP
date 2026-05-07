@@ -1,0 +1,50 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build output
+Debug/
+Release/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Compiled artifacts
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ilk
+*.exp
+*.obj
+*.idb
+*.ipdb
+*.iobj
+*.pgd
+*.pgr
+
+# MSBuild output
+*.log
+*.tlog
+*.recipe
+*.lastbuildstate
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+
+# Submodules - ignore cas-bacnet-stack contents, keep folder and submodules/readme.md
+submodules/cas-bacnet-stack/*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
