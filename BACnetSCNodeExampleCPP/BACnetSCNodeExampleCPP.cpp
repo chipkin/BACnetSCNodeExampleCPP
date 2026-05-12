@@ -371,10 +371,12 @@ bool DoUserInput()
 	{
 		if (g_exampleDatabase.analogInput.reliability == CASBACnetStackExampleConstants::RELIABILITY_NO_FAULT_DETECTED)
 		{
+			printf("Setting Analog Input reliability to UNRELIABLE_OTHER (7)\n");
 			g_exampleDatabase.analogInput.reliability = CASBACnetStackExampleConstants::RELIABILITY_UNRELIABLE_OTHER; // unreliable-other (7)
 		}
 		else
 		{
+			printf("Setting Analog Input reliability to NO_FAULT_DETECTED (0)\n");
 			g_exampleDatabase.analogInput.reliability = CASBACnetStackExampleConstants::RELIABILITY_NO_FAULT_DETECTED; // no-fault-detected (0)
 		}
 		break;
@@ -544,5 +546,7 @@ void CallbackDisconnectWebsocket(const char *websocketUri, const uint32_t websoc
 // Callback gets called when the CAS BACnet Stack changes an observable BACnet / SC state machine value (debug purposes)
 void CallbackBACnetSCStateChange(const uint32_t deviceInstance, const uint32_t networkPortInstance, const uint8_t stateMachine, const uint8_t previousState, const uint8_t newState, const char *websocketUri, const uint32_t websocketUriLength)
 {
+	printf("BACnet/SC State Change: deviceInstance=%u, networkPortInstance=%u, stateMachine=%u, previousState=%u, newState=%u, websocketUri=%.*s\n",
+				 deviceInstance, networkPortInstance, stateMachine, previousState, newState, websocketUriLength, websocketUri);
 	return;
 }
