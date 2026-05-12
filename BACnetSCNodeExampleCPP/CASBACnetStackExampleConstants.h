@@ -37,7 +37,7 @@ public:
 	//static const uint16_t OBJECT_TYPE_COMMAND = 7;
 	static const uint16_t OBJECT_TYPE_DEVICE = 8;
 	//static const uint16_t OBJECT_TYPE_EVENT_ENROLLMENT = 9;
-	//static const uint16_t OBJECT_TYPE_FILE = 10;
+	static const uint16_t OBJECT_TYPE_FILE = 10;
 	//static const uint16_t OBJECT_TYPE_GROUP = 11;
 	//static const uint16_t OBJECT_TYPE_LOOP = 12;
 	//static const uint16_t OBJECT_TYPE_MULTI_STATE_INPUT = 13;
@@ -94,6 +94,8 @@ public:
 	static const uint32_t PROPERTY_IDENTIFIER_COV_INCURMENT = 22;
 	static const uint32_t PROPERTY_IDENTIFIER_DAY_LIGHT_SAVINGS_STATUS = 24;
 	static const uint32_t PROPERTY_IDENTIFIER_DESCRIPTION = 28;
+	static const uint32_t PROPERTY_IDENTIFIER_FILE_SIZE = 42;
+	static const uint32_t PROPERTY_IDENTIFIER_FILE_TYPE = 43;
 	static const uint32_t PROPERTY_IDENTIFIER_LOCAL_DATE = 56;
 	static const uint32_t PROPERTY_IDENTIFIER_LOCAL_TIME = 57;
 	static const uint32_t PROPERTY_IDENTIFIER_MAX_PRES_VALUE = 65;

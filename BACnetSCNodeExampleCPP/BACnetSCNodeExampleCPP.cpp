@@ -25,10 +25,11 @@
 #ifndef __GNUC__ // Windows
 #include <windows.h>
 #include <conio.h> // _kbhit
-#else // Linux 
+#else							 // Linux
 #include <sys/ioctl.h>
 #include <termios.h>
-bool _kbhit() {
+bool _kbhit()
+{
 	termios term;
 	tcgetattr(0, &term);
 	termios term2 = term;
@@ -42,12 +43,12 @@ bool _kbhit() {
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
-void Sleep(int milliseconds) {
+void Sleep(int milliseconds)
+{
 	usleep(milliseconds * 1000);
 }
 
 #endif // __GNUC__
-
 
 // Globals
 // =======================================
@@ -90,7 +91,7 @@ time_t CallbackGetSystemTime();
 
 // Get Property Functions
 bool CallbackGetPropertyCharString(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, char *value, uint32_t *valueElementCount, const uint32_t maxElementCount, uint8_t *encodingType, const bool useArrayIndex, const uint32_t propertyArrayIndex);
-bool CallbackGetPropertyEnum(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, uint32_t* value, bool useArrayIndex, uint32_t propertyArrayIndex);
+bool CallbackGetPropertyEnum(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, uint32_t *value, bool useArrayIndex, uint32_t propertyArrayIndex);
 bool CallbackGetPropertyReal(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, float *value, bool useArrayIndex, uint32_t propertyArrayIndex);
 
 // BACnetSC Callback Functions
@@ -156,7 +157,8 @@ int main(int argc, char **argv)
 			g_initialIAmSent = true;
 		}
 
-		if (!DoUserInput()) {
+		if (!DoUserInput())
+		{
 			// User press 'q' to quit the example application.
 			break;
 		}
@@ -242,7 +244,7 @@ bool SetupDevice()
 		fprintf(stderr, "ERROR: Failed to add Analog Input\n");
 		return false;
 	}
-	fpSetPropertyEnabled(g_exampleDatabase.device.instance,	CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_RELIABILITY, true);
+	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_RELIABILITY, true);
 	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_COV_INCURMENT, true);
 
 	// --------------------------------------------------------
@@ -253,11 +255,11 @@ bool SetupDevice()
 	// --------------------------------------------------------
 	printf("Adding SC NetworkPort, instance=%u\n", g_exampleDatabase.networkPort.instance);
 	if (!fpAddNetworkPortObject(
-		g_exampleDatabase.device.instance,
-		g_exampleDatabase.networkPort.instance,
-		CASBACnetStackExampleConstants::NETWORK_TYPE_SECURE_CONNECT,				 // 11 = secureConnect
-		CASBACnetStackExampleConstants::PROTOCOL_LEVEL_BACNET_APPLICATION,	 // 2
-		CASBACnetStackExampleConstants::NETWORK_PORT_LOWEST_PROTOCOL_LAYER)) // 4194303
+					g_exampleDatabase.device.instance,
+					g_exampleDatabase.networkPort.instance,
+					CASBACnetStackExampleConstants::NETWORK_TYPE_SECURE_CONNECT,				 // 11 = secureConnect
+					CASBACnetStackExampleConstants::PROTOCOL_LEVEL_BACNET_APPLICATION,	 // 2
+					CASBACnetStackExampleConstants::NETWORK_PORT_LOWEST_PROTOCOL_LAYER)) // 4194303
 	{
 		fprintf(stderr, "ERROR: Failed to add SC NetworkPort\n");
 		return false;
@@ -301,6 +303,7 @@ bool ConfigureBACnetSC()
 		fprintf(stderr, "ERROR: Failed to configure Hub Connector\n");
 		return false;
 	}
+
 	return true;
 }
 
@@ -311,13 +314,13 @@ bool SendIAm()
 	// The 'broadcast' flag tells the stack to forward to all connected peers.
 	printf("Sending I-Am broadcast...\n");
 	if (!fpSendIAm(
-		g_exampleDatabase.device.instance,
-		(const uint8_t *)g_primaryHubUri.c_str(),
-		(uint16_t)g_primaryHubUri.length(),
-		CASBACnetStackExampleConstants::CAS_NETWORK_TYPE_SC, // 2 = BACnet/SC
-		true,												 // broadcast (send to all peers)
-		65535,												 // hopCount (max)
-		NULL, 0))											 // no specific network/address
+					g_exampleDatabase.device.instance,
+					(const uint8_t *)g_primaryHubUri.c_str(),
+					(uint16_t)g_primaryHubUri.length(),
+					CASBACnetStackExampleConstants::CAS_NETWORK_TYPE_SC, // 2 = BACnet/SC
+					true,																								 // broadcast (send to all peers)
+					65535,																							 // hopCount (max)
+					NULL, 0))																						 // no specific network/address
 	{
 		fprintf(stderr, "ERROR: Failed to send I-Am\n");
 		return false;
@@ -326,9 +329,11 @@ bool SendIAm()
 	return true;
 }
 
-bool DoUserInput() {
+bool DoUserInput()
+{
 	// Check to see if the user hit any key
-	if (!_kbhit()) {
+	if (!_kbhit())
+	{
 		// No keys have been hit
 		return true;
 	}
@@ -336,42 +341,52 @@ bool DoUserInput() {
 	// Extract the letter that the user hit and convert it to lower case
 	char action = tolower(getchar());
 
-	// Handle the action 
-	switch (action) {
+	// Handle the action
+	switch (action)
+	{
 	// Increase Analog Input
-	case 'i': {
+	case 'i':
+	{
 		g_exampleDatabase.analogInput.presentValue += 1.1f;
 		printf("Increasing Analog Input to %f", g_exampleDatabase.analogInput.presentValue);
-		if (fpValueUpdated != NULL) {
+		if (fpValueUpdated != NULL)
+		{
 			fpValueUpdated(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_PRESENT_VALUE);
 		}
 		break;
 	}
 	// Decrease Analog Input
-	case 'd': {
+	case 'd':
+	{
 		g_exampleDatabase.analogInput.presentValue -= 1.3f;
 		printf("Decreasing Analog Input to %f", g_exampleDatabase.analogInput.presentValue);
-		if (fpValueUpdated != NULL) {
+		if (fpValueUpdated != NULL)
+		{
 			fpValueUpdated(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_PRESENT_VALUE);
 		}
 		break;
 	}
 	// Toggle Analog Input Reliability
-	case 't': {
-		if (g_exampleDatabase.analogInput.reliability == CASBACnetStackExampleConstants::RELIABILITY_NO_FAULT_DETECTED) {
+	case 't':
+	{
+		if (g_exampleDatabase.analogInput.reliability == CASBACnetStackExampleConstants::RELIABILITY_NO_FAULT_DETECTED)
+		{
 			g_exampleDatabase.analogInput.reliability = CASBACnetStackExampleConstants::RELIABILITY_UNRELIABLE_OTHER; // unreliable-other (7)
 		}
-		else {
-			g_exampleDatabase.analogInput.reliability = CASBACnetStackExampleConstants::RELIABILITY_NO_FAULT_DETECTED; //no-fault-detected (0)
+		else
+		{
+			g_exampleDatabase.analogInput.reliability = CASBACnetStackExampleConstants::RELIABILITY_NO_FAULT_DETECTED; // no-fault-detected (0)
 		}
 		break;
 	}
 	// Quit
-	case 'q': {
+	case 'q':
+	{
 		return false;
 	}
 	// Help
-	case 'h': {
+	case 'h':
+	{
 		PrintHelp();
 		break;
 	}
@@ -382,7 +397,8 @@ bool DoUserInput() {
 	return true;
 }
 
-void PrintHelp() {
+void PrintHelp()
+{
 	// Print the Help
 	printf("\n\n");
 	printf("CAS BACnet Stack SC Node Example v%s.%u\n", APPLICATION_VERSION.c_str(), CIBUILDNUMBER);
@@ -410,7 +426,7 @@ uint16_t CallbackReceiveMessage(uint8_t *message, const uint16_t maxMessageLengt
 		*networkType = CASBACnetStackExampleConstants::CAS_NETWORK_TYPE_SC;
 		const std::string &uri = g_websocketClient.GetHubUri();
 		uint8_t uriLen = static_cast<uint8_t>(
-			uri.size() < maxConnectionStringLength ? uri.size() : maxConnectionStringLength);
+				uri.size() < maxConnectionStringLength ? uri.size() : maxConnectionStringLength);
 		memcpy(sourceConnectionString, uri.c_str(), uriLen);
 		*sourceConnectionStringLength = uriLen;
 	}
@@ -436,22 +452,26 @@ time_t CallbackGetSystemTime()
 // Callback used by the BACnet Stack to get Character String property values from the user
 bool CallbackGetPropertyCharString(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, char *value, uint32_t *valueElementCount, const uint32_t maxElementCount, uint8_t *encodingType, const bool useArrayIndex, const uint32_t propertyArrayIndex)
 {
-	if(deviceInstance == g_exampleDatabase.device.instance)
+	if (deviceInstance == g_exampleDatabase.device.instance)
 	{
-		if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_OBJECT_NAME) {
-			if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_DEVICE) {
+		if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_OBJECT_NAME)
+		{
+			if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_DEVICE)
+			{
 				strncpy(value, g_exampleDatabase.device.objectName.c_str(), maxElementCount);
 				*valueElementCount = (uint32_t)g_exampleDatabase.device.objectName.length();
 				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
 				return true;
 			}
-			else if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT) {
+			else if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT)
+			{
 				strncpy(value, g_exampleDatabase.analogInput.objectName.c_str(), maxElementCount);
 				*valueElementCount = (uint32_t)g_exampleDatabase.analogInput.objectName.length();
 				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
 				return true;
 			}
-			else if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_NETWORK_PORT) {
+			else if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_NETWORK_PORT)
+			{
 				strncpy(value, g_exampleDatabase.networkPort.objectName.c_str(), maxElementCount);
 				*valueElementCount = (uint32_t)g_exampleDatabase.networkPort.objectName.length();
 				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
@@ -463,10 +483,14 @@ bool CallbackGetPropertyCharString(const uint32_t deviceInstance, const uint16_t
 	return false;
 }
 
-bool CallbackGetPropertyEnum(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, uint32_t* value, bool useArrayIndex, uint32_t propertyArrayIndex) {
-	if (deviceInstance == g_exampleDatabase.device.instance) {
-		if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT && objectInstance == g_exampleDatabase.analogInput.instance) {
-			if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_RELIABILITY) {
+bool CallbackGetPropertyEnum(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, uint32_t *value, bool useArrayIndex, uint32_t propertyArrayIndex)
+{
+	if (deviceInstance == g_exampleDatabase.device.instance)
+	{
+		if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT && objectInstance == g_exampleDatabase.analogInput.instance)
+		{
+			if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_RELIABILITY)
+			{
 				*value = g_exampleDatabase.analogInput.reliability;
 				return true;
 			}
@@ -478,13 +502,17 @@ bool CallbackGetPropertyEnum(uint32_t deviceInstance, uint16_t objectType, uint3
 // Callback used by the BACnet Stack to get Real property values from the user
 bool CallbackGetPropertyReal(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, float *value, bool useArrayIndex, uint32_t propertyArrayIndex)
 {
-	if (deviceInstance == g_exampleDatabase.device.instance) {
-		if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT && objectInstance == g_exampleDatabase.analogInput.instance) {
-			if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_PRESENT_VALUE) {
+	if (deviceInstance == g_exampleDatabase.device.instance)
+	{
+		if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT && objectInstance == g_exampleDatabase.analogInput.instance)
+		{
+			if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_PRESENT_VALUE)
+			{
 				*value = g_exampleDatabase.analogInput.presentValue;
 				return true;
 			}
-			else if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_COV_INCURMENT) {
+			else if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_COV_INCURMENT)
+			{
 				*value = g_exampleDatabase.analogInput.covIncrement;
 				return true;
 			}
