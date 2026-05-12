@@ -235,7 +235,7 @@ bool SetupDevice()
 	}
 
 	// --------------------------------------------------------
-	// 3. Add the Analog Input object (instance 0)
+	// 3. Add the Analog Input object (instance 1)
 	// This is the only data object in this example.
 	// --------------------------------------------------------
 	printf("Adding AnalogInput, instance=%u\n", g_exampleDatabase.analogInput.instance);
