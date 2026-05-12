@@ -68,7 +68,7 @@ public:
 	ExampleDatabaseDevice device;
 	ExampleDatabaseNetworkPort networkPort;
 
-	// Constructor / Deconstructor
+	// Constructor / Destructor
 	ExampleDatabase();
 	~ExampleDatabase();
 
