@@ -43,6 +43,15 @@ install_manifest.txt
 # Submodules - ignore cas-bacnet-stack contents, keep folder and submodules/readme.md
 submodules/cas-bacnet-stack/*
 
+# Example certificates - generated per-machine/PKI, must not be committed.
+# See exampleCerts/README.md for instructions on generating replacement certs.
+exampleCerts/*.pem
+exampleCerts/*.crt
+exampleCerts/*.key
+exampleCerts/*.p12
+exampleCerts/*.pfx
+exampleCerts/*.csr
+
 # Windows
 Thumbs.db
 ehthumbs.db
