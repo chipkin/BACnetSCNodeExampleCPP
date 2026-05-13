@@ -284,9 +284,10 @@ bool ConfigureBACnetSC()
 	// Configure the Hub Connector (Node role).
 	//
 	// Parameters:
-	//   vmac              - 6-byte VMAC for this device. Use all-zeros to let
-	//                       the hub assign one automatically.
-	//   vmacLength        - 6
+	//   vmac              - 6-byte VMAC for this device. For automatic VMAC
+	//                       assignment, pass NULL instead of an all-zero VMAC.
+	//   vmacLength        - 6 when providing a VMAC, or 0 when vmac is NULL
+	//                       to request automatic assignment
 	//   primaryHubUri     - the Hub's listen URI to connect to
 	//   primaryHubUriLen  - length of the primary URI
 	//   failoverHubUri    - a backup hub URI (optional, can be NULL)
