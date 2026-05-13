@@ -108,7 +108,15 @@ bool BACnetSCWebsocketClient::Connect()
     {
         ctxInfo.client_ssl_ca_filepath = m_caCertPath.c_str();
     }
-    if (!m_clientCertPath.empty())
+    const bool hasClientCertPath = !m_clientCertPath.empty();
+    const bool hasClientKeyPath = !m_clientKeyPath.empty();
+    if (hasClientCertPath != hasClientKeyPath)
+    {
+        fprintf(stderr,
+                "BACnetSCWebsocketClient: Client certificate and key paths must be configured together.\n");
+        return false;
+    }
+    if (hasClientCertPath)
     {
         ctxInfo.client_ssl_cert_filepath = m_clientCertPath.c_str();
         ctxInfo.client_ssl_private_key_filepath = m_clientKeyPath.c_str();
