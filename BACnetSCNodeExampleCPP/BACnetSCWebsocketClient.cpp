@@ -17,7 +17,7 @@
 static const char *BACNETSC_PROTOCOL = "hub.bsc.bacnet.org";
 
 // ---------------------------------------------------------------------------
-// libwebsockets protocol table entry � one entry plus a null terminator.
+// libwebsockets protocol table entry - one entry plus a null terminator.
 // The per-session user data pointer is set to the BACnetSCWebsocketClient
 // instance so the static callback can dispatch to the correct object.
 // ---------------------------------------------------------------------------
@@ -156,7 +156,7 @@ bool BACnetSCWebsocketClient::Connect()
     ccInfo.host = host.c_str();
     ccInfo.origin = host.c_str();
     ccInfo.protocol = BACNETSC_PROTOCOL;
-    ccInfo.ssl_connection = LCCSCF_USE_SSL;
+    ccInfo.ssl_connection = useSSL ? LCCSCF_USE_SSL : 0;
     ccInfo.userdata = this; // passed as user in LwsCallback
 
     m_wsi = lws_client_connect_via_info(&ccInfo);

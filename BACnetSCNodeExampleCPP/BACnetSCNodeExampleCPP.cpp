@@ -21,6 +21,12 @@
 #include "BACnetSCWebsocketClient.h"
 #include "CIBuildSettings.h"
 
+// Standard library includes
+#include <cstdio>
+#include <cstring>
+#include <cctype>
+#include <ctime>
+
 // Platform-specific includes and functions
 #ifndef __GNUC__ // Windows
 #include <windows.h>
@@ -245,7 +251,7 @@ bool SetupDevice()
 		return false;
 	}
 	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_RELIABILITY, true);
-	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_COV_INCURMENT, true);
+	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_COV_INCREMENT, true);
 
 	// --------------------------------------------------------
 	// 4. Add the SC Network Port object
@@ -349,7 +355,7 @@ bool DoUserInput()
 	case 'i':
 	{
 		g_exampleDatabase.analogInput.presentValue += 1.1f;
-		printf("Increasing Analog Input to %f", g_exampleDatabase.analogInput.presentValue);
+		printf("Increasing Analog Input to %f\n", g_exampleDatabase.analogInput.presentValue);
 		if (fpValueUpdated != NULL)
 		{
 			fpValueUpdated(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_PRESENT_VALUE);
@@ -360,7 +366,7 @@ bool DoUserInput()
 	case 'd':
 	{
 		g_exampleDatabase.analogInput.presentValue -= 1.3f;
-		printf("Decreasing Analog Input to %f", g_exampleDatabase.analogInput.presentValue);
+		printf("Decreasing Analog Input to %f\n", g_exampleDatabase.analogInput.presentValue);
 		if (fpValueUpdated != NULL)
 		{
 			fpValueUpdated(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_PRESENT_VALUE);
@@ -514,7 +520,7 @@ bool CallbackGetPropertyReal(uint32_t deviceInstance, uint16_t objectType, uint3
 				*value = g_exampleDatabase.analogInput.presentValue;
 				return true;
 			}
-			else if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_COV_INCURMENT)
+			else if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_COV_INCREMENT)
 			{
 				*value = g_exampleDatabase.analogInput.covIncrement;
 				return true;

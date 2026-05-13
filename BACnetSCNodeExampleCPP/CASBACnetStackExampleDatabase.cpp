@@ -77,7 +77,3 @@ void ExampleDatabase::Setup()
 	this->networkPort.clientCertPath = "../exampleCerts/opr-389000.pem";
 	this->networkPort.clientKeyPath = "../exampleCerts/key-389000.pem";
 }
-
-void LoadNetworkPortProperties()
-{
-}

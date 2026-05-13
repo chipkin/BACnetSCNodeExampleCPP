@@ -82,10 +82,10 @@ public:
 Implementation of `BACnetSCWebsocketClient`.
 
 **Key internals:**
-- `lws_context*` — the libwebsockets context (created in `Connect()`, destroyed in destructor)
-- `lws*` — the active websocket connection handle
-- `std::queue<std::vector<uint8_t>>` — outbound message queue (with LWS pre-padding)
-- `std::queue<std::vector<uint8_t>>` — inbound message queue
+- `lws_context*` ï¿½ the libwebsockets context (created in `Connect()`, destroyed in destructor)
+- `lws*` ï¿½ the active websocket connection handle
+- `std::queue<std::vector<uint8_t>>` ï¿½ outbound message queue (with LWS pre-padding)
+- `std::queue<std::vector<uint8_t>>` ï¿½ inbound message queue
 - Static libwebsockets callback function (`lws_callback_function`) registered for the
   `bacnet-sc` subprotocol, dispatching events to the class instance via `user` pointer
 - TLS configured via `lws_client_connect_info` and `lws_context_creation_info`
@@ -151,8 +151,7 @@ while (true) {
 ## 5. BACnet/SC Subprotocol Note
 
 libwebsockets requires the WebSocket subprotocol name to be declared during context
-creation. For BACnet/SC the subprotocol is **`"hub"` or `"bacnet-sc"`** depending on the
-Hub implementation. The helper class will use `"hub"` (per ASHRAE 135-2020 Addendum bj).
+creation. The helper class will use `"hub.bsc.bacnet.org"` (per ASHRAE 135-2020 Addendum bj).
 
 ---
 

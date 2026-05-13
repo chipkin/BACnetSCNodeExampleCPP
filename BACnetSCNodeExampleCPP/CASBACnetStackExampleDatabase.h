@@ -8,7 +8,7 @@
  * This data is represented by BACnet objects for this server example.
  *
  * Created by: Alex Fontaine
-*/
+ */
 
 #ifndef __CASBACnetStackExampleDatabase_h__
 #define __CASBACnetStackExampleDatabase_h__
@@ -19,14 +19,14 @@
 #include <string.h>
 #include <map>
 
-// Base class for all object types. 
+// Base class for all object types.
 class ExampleDatabaseBaseObject
 {
 public:
 	// Const
 	static const uint8_t PRIORITY_ARRAY_LENGTH = 16;
 
-	// All objects will have the following properties 
+	// All objects will have the following properties
 	std::string objectName;
 	uint32_t instance;
 	ExampleDatabaseBaseObject();
@@ -53,15 +53,16 @@ class ExampleDatabaseNetworkPort : public ExampleDatabaseBaseObject
 {
 public:
 	bool changesPending;
-	uint8_t vmac[6];              // Virtual MAC address for BACnet SC
-	std::string primaryHubUri;    // Hub WSS URI, e.g. "wss://192.168.1.100:47808"
-	std::string caCertPath;       // Path to CA certificate PEM file (optional)
-	std::string clientCertPath;   // Path to client certificate PEM file (optional)
-	std::string clientKeyPath;    // Path to client private key PEM file (optional)
+	uint8_t vmac[6];						// Virtual MAC address for BACnet SC
+	std::string primaryHubUri;	// Hub WSS URI, e.g. "wss://192.168.1.100:47808"
+	std::string caCertPath;			// Path to CA certificate PEM file (optional)
+	std::string clientCertPath; // Path to client certificate PEM file (optional)
+	std::string clientKeyPath;	// Path to client private key PEM file (optional)
 	ExampleDatabaseNetworkPort();
 };
 
-class ExampleDatabase {
+class ExampleDatabase
+{
 
 public:
 	ExampleDatabaseAnalogInput analogInput;
@@ -72,14 +73,8 @@ public:
 	ExampleDatabase();
 	~ExampleDatabase();
 
-	// Set all the objects to have a default value. 
+	// Set all the objects to have a default value.
 	void Setup();
-
-	// Update the values as needed 
-	void Loop();
-
-	// Helper Functions	
-	void LoadNetworkPortProperties();
 };
 
 #endif // __CASBACnetStackExampleDatabase_h__

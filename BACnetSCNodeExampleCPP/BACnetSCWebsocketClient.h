@@ -5,7 +5,7 @@
  *
  * Helper class that wraps libwebsockets to provide a simple outbound WSS
  * client connection to a BACnet/SC Hub. Only the Node (client) role is
- * implemented here � no server/listener logic is present.
+ * implemented here - no server/listener logic is present.
  *
  * Usage:
  *   1. Call Configure() with the Hub URI and optional TLS cert paths.
@@ -87,7 +87,7 @@ public:
     const std::string &GetHubUri() const;
 
 private:
-    // libwebsockets static callback � dispatches to the instance via user data.
+    // libwebsockets static callback - dispatches to the instance via user data.
     static int LwsCallback(struct lws *wsi, enum lws_callback_reasons reason,
                            void *user, void *in, size_t len);
 

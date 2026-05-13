@@ -7,17 +7,17 @@
  * Includes Object Types, Property Identifiers, etc.
  *
  * Created by: Steven Smethurst
-*/
+ */
 
 #ifndef __CASBACnetStackExampleConstants_h__
 #define __CASBACnetStackExampleConstants_h__
 
 #include "datatypes.h"
 
-class CASBACnetStackExampleConstants {
+class CASBACnetStackExampleConstants
+{
 
 public:
-
 	// CAS BACnet Stack network type
 	static const uint8_t CAS_NETWORK_TYPE_IP = 0;
 	static const uint8_t CAS_NETWORK_TYPE_MSTP = 1;
@@ -28,70 +28,70 @@ public:
 
 	// Object Types
 	static const uint16_t OBJECT_TYPE_ANALOG_INPUT = 0;
-	//static const uint16_t OBJECT_TYPE_ANALOG_OUTPUT = 1;
-	//static const uint16_t OBJECT_TYPE_ANALOG_VALUE = 2;
-	//static const uint16_t OBJECT_TYPE_BINARY_INPUT = 3;
-	//static const uint16_t OBJECT_TYPE_BINARY_OUTPUT = 4;
-	//static const uint16_t OBJECT_TYPE_BINARY_VALUE = 5;
-	//static const uint16_t OBJECT_TYPE_CALENDAR = 6;
-	//static const uint16_t OBJECT_TYPE_COMMAND = 7;
+	// static const uint16_t OBJECT_TYPE_ANALOG_OUTPUT = 1;
+	// static const uint16_t OBJECT_TYPE_ANALOG_VALUE = 2;
+	// static const uint16_t OBJECT_TYPE_BINARY_INPUT = 3;
+	// static const uint16_t OBJECT_TYPE_BINARY_OUTPUT = 4;
+	// static const uint16_t OBJECT_TYPE_BINARY_VALUE = 5;
+	// static const uint16_t OBJECT_TYPE_CALENDAR = 6;
+	// static const uint16_t OBJECT_TYPE_COMMAND = 7;
 	static const uint16_t OBJECT_TYPE_DEVICE = 8;
-	//static const uint16_t OBJECT_TYPE_EVENT_ENROLLMENT = 9;
+	// static const uint16_t OBJECT_TYPE_EVENT_ENROLLMENT = 9;
 	static const uint16_t OBJECT_TYPE_FILE = 10;
-	//static const uint16_t OBJECT_TYPE_GROUP = 11;
-	//static const uint16_t OBJECT_TYPE_LOOP = 12;
-	//static const uint16_t OBJECT_TYPE_MULTI_STATE_INPUT = 13;
-	//static const uint16_t OBJECT_TYPE_MULTI_STATE_OUTPUT = 14;
-	//static const uint16_t OBJECT_TYPE_NOTIFICATION_CLASS = 15;
-	//static const uint16_t OBJECT_TYPE_PROGRAM = 16;
-	//static const uint16_t OBJECT_TYPE_SCHEDULE = 17;
-	//static const uint16_t OBJECT_TYPE_AVERAGING = 18;
-	//static const uint16_t OBJECT_TYPE_MULTI_STATE_VALUE = 19;
-	//static const uint16_t OBJECT_TYPE_TREND_LOG = 20;
-	//static const uint16_t OBJECT_TYPE_LIFE_SAFETY_POINT = 21;
-	//static const uint16_t OBJECT_TYPE_LIFE_SAFETY_ZONE = 22;
-	//static const uint16_t OBJECT_TYPE_ACCUMULATOR = 23;
-	//static const uint16_t OBJECT_TYPE_PULSE_CONVERTER = 24;
-	//static const uint16_t OBJECT_TYPE_EVENT_LOG = 25;
-	//static const uint16_t OBJECT_TYPE_GLOBAL_GROUP = 26;
-	//static const uint16_t OBJECT_TYPE_TREND_LOG_MULTIPLE = 27;
-	//static const uint16_t OBJECT_TYPE_LOAD_CONTROL = 28;
-	//static const uint16_t OBJECT_TYPE_STRUCTURED_VIEW = 29;
-	//static const uint16_t OBJECT_TYPE_ACCESS_DOOR = 30;
-	//static const uint16_t OBJECT_TYPE_TIMER = 31;
-	//static const uint16_t OBJECT_TYPE_ACCESS_CREDENTIAL = 32;
-	//static const uint16_t OBJECT_TYPE_ACCESS_POINT = 33;
-	//static const uint16_t OBJECT_TYPE_ACCESS_RIGHTS = 34;
-	//static const uint16_t OBJECT_TYPE_ACCESS_USER = 35;
-	//static const uint16_t OBJECT_TYPE_ACCESS_ZONE = 36;
-	//static const uint16_t OBJECT_TYPE_CREDENTIAL_DATA_INPUT = 37;
-	//static const uint16_t OBJECT_TYPE_NETWORK_SECURITY = 38;
-	//static const uint16_t OBJECT_TYPE_BITSTRING_VALUE = 39;
-	//static const uint16_t OBJECT_TYPE_CHARACTERSTRING_VALUE = 40;
-	//static const uint16_t OBJECT_TYPE_DATEPATTERN_VALUE = 41;
-	//static const uint16_t OBJECT_TYPE_DATE_VALUE = 42;
-	//static const uint16_t OBJECT_TYPE_DATETIMEPATTERN_VALUE = 43;
-	//static const uint16_t OBJECT_TYPE_DATETIME_VALUE = 44;
-	//static const uint16_t OBJECT_TYPE_INTEGER_VALUE = 45;
-	//static const uint16_t OBJECT_TYPE_LARGE_ANALOG_VALUE = 46;
-	//static const uint16_t OBJECT_TYPE_OCTETSTRING_VALUE = 47;
-	//static const uint16_t OBJECT_TYPE_POSITIVE_INTEGER_VALUE = 48;
-	//static const uint16_t OBJECT_TYPE_TIMEPATTERN_VALUE = 49;
-	//static const uint16_t OBJECT_TYPE_TIME_VALUE = 50;
-	//static const uint16_t OBJECT_TYPE_NOTIFICATION_FORWARDER = 51;
-	//static const uint16_t OBJECT_TYPE_ALERT_ENROLLMENT = 52;
-	//static const uint16_t OBJECT_TYPE_CHANNEL = 53;
-	//static const uint16_t OBJECT_TYPE_LIGHTING_OUTPUT = 54;
-	//static const uint16_t OBJECT_TYPE_BINARY_LIGHTING_OUTPUT = 55;
+	// static const uint16_t OBJECT_TYPE_GROUP = 11;
+	// static const uint16_t OBJECT_TYPE_LOOP = 12;
+	// static const uint16_t OBJECT_TYPE_MULTI_STATE_INPUT = 13;
+	// static const uint16_t OBJECT_TYPE_MULTI_STATE_OUTPUT = 14;
+	// static const uint16_t OBJECT_TYPE_NOTIFICATION_CLASS = 15;
+	// static const uint16_t OBJECT_TYPE_PROGRAM = 16;
+	// static const uint16_t OBJECT_TYPE_SCHEDULE = 17;
+	// static const uint16_t OBJECT_TYPE_AVERAGING = 18;
+	// static const uint16_t OBJECT_TYPE_MULTI_STATE_VALUE = 19;
+	// static const uint16_t OBJECT_TYPE_TREND_LOG = 20;
+	// static const uint16_t OBJECT_TYPE_LIFE_SAFETY_POINT = 21;
+	// static const uint16_t OBJECT_TYPE_LIFE_SAFETY_ZONE = 22;
+	// static const uint16_t OBJECT_TYPE_ACCUMULATOR = 23;
+	// static const uint16_t OBJECT_TYPE_PULSE_CONVERTER = 24;
+	// static const uint16_t OBJECT_TYPE_EVENT_LOG = 25;
+	// static const uint16_t OBJECT_TYPE_GLOBAL_GROUP = 26;
+	// static const uint16_t OBJECT_TYPE_TREND_LOG_MULTIPLE = 27;
+	// static const uint16_t OBJECT_TYPE_LOAD_CONTROL = 28;
+	// static const uint16_t OBJECT_TYPE_STRUCTURED_VIEW = 29;
+	// static const uint16_t OBJECT_TYPE_ACCESS_DOOR = 30;
+	// static const uint16_t OBJECT_TYPE_TIMER = 31;
+	// static const uint16_t OBJECT_TYPE_ACCESS_CREDENTIAL = 32;
+	// static const uint16_t OBJECT_TYPE_ACCESS_POINT = 33;
+	// static const uint16_t OBJECT_TYPE_ACCESS_RIGHTS = 34;
+	// static const uint16_t OBJECT_TYPE_ACCESS_USER = 35;
+	// static const uint16_t OBJECT_TYPE_ACCESS_ZONE = 36;
+	// static const uint16_t OBJECT_TYPE_CREDENTIAL_DATA_INPUT = 37;
+	// static const uint16_t OBJECT_TYPE_NETWORK_SECURITY = 38;
+	// static const uint16_t OBJECT_TYPE_BITSTRING_VALUE = 39;
+	// static const uint16_t OBJECT_TYPE_CHARACTERSTRING_VALUE = 40;
+	// static const uint16_t OBJECT_TYPE_DATEPATTERN_VALUE = 41;
+	// static const uint16_t OBJECT_TYPE_DATE_VALUE = 42;
+	// static const uint16_t OBJECT_TYPE_DATETIMEPATTERN_VALUE = 43;
+	// static const uint16_t OBJECT_TYPE_DATETIME_VALUE = 44;
+	// static const uint16_t OBJECT_TYPE_INTEGER_VALUE = 45;
+	// static const uint16_t OBJECT_TYPE_LARGE_ANALOG_VALUE = 46;
+	// static const uint16_t OBJECT_TYPE_OCTETSTRING_VALUE = 47;
+	// static const uint16_t OBJECT_TYPE_POSITIVE_INTEGER_VALUE = 48;
+	// static const uint16_t OBJECT_TYPE_TIMEPATTERN_VALUE = 49;
+	// static const uint16_t OBJECT_TYPE_TIME_VALUE = 50;
+	// static const uint16_t OBJECT_TYPE_NOTIFICATION_FORWARDER = 51;
+	// static const uint16_t OBJECT_TYPE_ALERT_ENROLLMENT = 52;
+	// static const uint16_t OBJECT_TYPE_CHANNEL = 53;
+	// static const uint16_t OBJECT_TYPE_LIGHTING_OUTPUT = 54;
+	// static const uint16_t OBJECT_TYPE_BINARY_LIGHTING_OUTPUT = 55;
 	static const uint16_t OBJECT_TYPE_NETWORK_PORT = 56;
-	//static const uint16_t OBJECT_TYPE_ELEVATOR_GROUP = 57;
-	//static const uint16_t OBJECT_TYPE_ESCALATOR = 58;
-	//static const uint16_t OBJECT_TYPE_LIFT = 59;
+	// static const uint16_t OBJECT_TYPE_ELEVATOR_GROUP = 57;
+	// static const uint16_t OBJECT_TYPE_ESCALATOR = 58;
+	// static const uint16_t OBJECT_TYPE_LIFT = 59;
 
 	// Property Identifiers
 	static const uint32_t PROPERTY_IDENTIFIER_ALL = 8;
 	static const uint32_t PROPERTY_IDENTIFIER_APPLICATION_SOFTWARE_VERSION = 12;
-	static const uint32_t PROPERTY_IDENTIFIER_COV_INCURMENT = 22;
+	static const uint32_t PROPERTY_IDENTIFIER_COV_INCREMENT = 22;
 	static const uint32_t PROPERTY_IDENTIFIER_DAY_LIGHT_SAVINGS_STATUS = 24;
 	static const uint32_t PROPERTY_IDENTIFIER_DESCRIPTION = 28;
 	static const uint32_t PROPERTY_IDENTIFIER_FILE_SIZE = 42;
@@ -173,7 +173,7 @@ public:
 	// Protocol Level
 	static const uint8_t PROTOCOL_LEVEL_BACNET_APPLICATION = 2;
 
-	// Data types 
+	// Data types
 	static const uint32_t DATA_TYPE_NULL = 0;
 	static const uint32_t DATA_TYPE_BOOLEAN = 1;
 	static const uint32_t DATA_TYPE_UNSIGNED_INTEGER = 2;
@@ -205,7 +205,7 @@ public:
 	static const uint8_t ENCODING_TYPE_UTF8 = 0;
 
 	// General Constants
-	const uint32_t NETWORK_PORT_LOWEST_PROTOCOL_LEVEL = 4194303;
+	static const uint32_t NETWORK_PORT_LOWEST_PROTOCOL_LEVEL = 4194303;
 };
 
 #endif // __CASBACnetStackExampleConstants_h__
