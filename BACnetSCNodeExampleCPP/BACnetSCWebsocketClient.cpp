@@ -114,7 +114,7 @@ bool BACnetSCWebsocketClient::Connect()
     {
         fprintf(stderr, "BACnetSCWebsocketClient: %s path provided without %s path.\n",
                 hasClientCertPath ? "Client certificate" : "Client private key",
-                hasClientCertPath ? "client private key" : "client certificate");
+                hasClientCertPath ? "Client private key" : "Client certificate");
         return false;
     }
     if (hasClientCertPath)
