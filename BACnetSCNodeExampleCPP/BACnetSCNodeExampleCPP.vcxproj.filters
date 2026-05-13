@@ -1356,7 +1356,7 @@
     <ClCompile Include="CASBACnetStackExampleDatabase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BACnetSCWebsocketClient.cpp">
+    <ClCompile Include="..\websocket\BACnetSCWebsocketClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\submodules\cas-bacnet-stack\source\BACnetStackNetworkPortSC.cpp">
@@ -2636,7 +2636,7 @@
     <ClInclude Include="CASBACnetStackExampleConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BACnetSCWebsocketClient.h">
+    <ClInclude Include="..\websocket\BACnetSCWebsocketClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\submodules\cas-bacnet-stack\source\BACnetStackNetworkPortSC.h">

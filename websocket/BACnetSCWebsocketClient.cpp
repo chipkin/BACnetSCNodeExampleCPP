@@ -2,6 +2,7 @@
  * BACnet SC Node Example C++
  * ----------------------------------------------------------------------------
  * BACnetSCWebsocketClient.cpp
+ * Version: 1.0.0
  *
  * Implementation of BACnetSCWebsocketClient using libwebsockets 4.x.
  */

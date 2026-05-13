@@ -20,6 +20,7 @@
 #include "CASBACnetStackExampleDatabase.h"
 #include "BACnetSCWebsocketClient.h"
 #include "CIBuildSettings.h"
+#include "version.h"
 
 // Standard library includes
 #include <cstdio>
@@ -70,11 +71,7 @@ std::string g_clientKeyPassword;					 // Passphrase for the encrypted client pri
 uint8_t g_uuid[16] = {
 		0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
 		0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
-const std::string g_primaryHubUri = "wss://127.0.0.1:4443/bacnet-sc";
-
-// Constants
-// =======================================
-const std::string APPLICATION_VERSION = "1.0.0"; // See CHANGELOG.md for a full list of changes.
+std::string g_primaryHubUri = "wss://127.0.0.1:4443/bacnet-sc";
 
 // Function Prototypes
 // =======================================
@@ -114,11 +111,17 @@ int main(int argc, char **argv)
 		{
 			g_clientKeyPassword = argv[++i];
 		}
+		else if (strcmp(argv[i], "--hub-uri") == 0 && i + 1 < argc)
+		{
+			g_primaryHubUri = argv[++i];
+		}
 	}
 
 	// Print the application version information
-	printf("CAS BACnet Stack SC Node Example v%s.%u\n", APPLICATION_VERSION.c_str(), CIBUILDNUMBER);
+	printf("CAS BACnet Stack SC Node Example v%s.%u\n", APPLICATION_VERSION, CIBUILDNUMBER);
+	printf("BACnetSCWebsocketClient v%s\n", BACNET_SC_WEBSOCKET_CLIENT_VERSION);
 	printf("https://github.com/chipkin/BACnetSCNodeExampleCPP\n\n");
+	printf("Hub URI: %s\n", g_primaryHubUri.c_str());
 
 	// 1. Load the CAS BACnet stack functions
 	// ---------------------------------------------------------------------------
@@ -252,6 +255,8 @@ bool SetupDevice()
 	}
 	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_RELIABILITY, true);
 	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_ANALOG_INPUT, g_exampleDatabase.analogInput.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_COV_INCREMENT, true);
+	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_DEVICE, g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_DESCRIPTION, true);
+	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_DEVICE, g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_APPLICATION_SOFTWARE_VERSION, true);
 
 	// --------------------------------------------------------
 	// 4. Add the SC Network Port object
@@ -410,9 +415,14 @@ void PrintHelp()
 {
 	// Print the Help
 	printf("\n\n");
-	printf("CAS BACnet Stack SC Node Example v%s.%u\n", APPLICATION_VERSION.c_str(), CIBUILDNUMBER);
+	printf("CAS BACnet Stack SC Node Example v%s.%u\n", APPLICATION_VERSION, CIBUILDNUMBER);
+	printf("BACnetSCWebsocketClient v%s\n", BACNET_SC_WEBSOCKET_CLIENT_VERSION);
 	printf("https://github.com/chipkin/BACnetSCNodeExampleCPP\n\n");
 
+	printf("Command-line arguments:\n");
+	printf("  --hub-uri <uri>        Hub WebSocket URI (default: wss://127.0.0.1:4443/bacnet-sc)\n");
+	printf("  --key-password <pass>  Private key passphrase for mutual TLS\n");
+	printf("\n");
 	printf("Help:\n");
 	printf("i - (i)ncrease Analog Input by 1.1\n");
 	printf("d - (d)ecrease Analog Input by 1.3\n");
@@ -483,6 +493,26 @@ bool CallbackGetPropertyCharString(const uint32_t deviceInstance, const uint16_t
 			{
 				strncpy(value, g_exampleDatabase.networkPort.objectName.c_str(), maxElementCount);
 				*valueElementCount = (uint32_t)g_exampleDatabase.networkPort.objectName.length();
+				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
+				return true;
+			}
+		}
+		else if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_DESCRIPTION)
+		{
+			if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_DEVICE)
+			{
+				strncpy(value, g_exampleDatabase.device.description.c_str(), maxElementCount);
+				*valueElementCount = (uint32_t)g_exampleDatabase.device.description.length();
+				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
+				return true;
+			}
+		}
+		else if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_APPLICATION_SOFTWARE_VERSION)
+		{
+			if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_DEVICE)
+			{
+				strncpy(value, g_exampleDatabase.device.applicationSoftwareVersion.c_str(), maxElementCount);
+				*valueElementCount = (uint32_t)g_exampleDatabase.device.applicationSoftwareVersion.length();
 				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
 				return true;
 			}

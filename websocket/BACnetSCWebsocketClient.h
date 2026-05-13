@@ -2,6 +2,7 @@
  * BACnet SC Node Example C++
  * ----------------------------------------------------------------------------
  * BACnetSCWebsocketClient.h
+ * Version: 1.0.0
  *
  * Helper class that wraps libwebsockets to provide a simple outbound WSS
  * client connection to a BACnet/SC Hub. Only the Node (client) role is
@@ -37,6 +38,8 @@ struct lws;
 // having any direct dependency on CASBACnetStackAdapter.
 typedef void (*WebSocketStatusCallback)(const char *uri, uint16_t uriLength,
                                         uint8_t status, uint32_t errorCode);
+
+static const char BACNET_SC_WEBSOCKET_CLIENT_VERSION[] = "1.0.0";
 
 class BACnetSCWebsocketClient
 {

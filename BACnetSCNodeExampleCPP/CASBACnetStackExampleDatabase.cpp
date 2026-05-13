@@ -9,6 +9,7 @@
  */
 
 #include "CASBACnetStackExampleDatabase.h"
+#include "version.h"
 
 ExampleDatabaseBaseObject::ExampleDatabaseBaseObject()
 {
@@ -52,9 +53,11 @@ ExampleDatabase::~ExampleDatabase()
 void ExampleDatabase::Setup()
 {
 	// Setup the Device Object
-	this->device.objectName = "Example BACnet SC Node";
-	this->device.instance = 389999;
+	this->device.objectName = "Chipkin Example SC Node";
+	this->device.instance = 389990;
 	this->device.systemStatus = 0; // Operational
+	this->device.description = "https://github.com/chipkin/BACnetSCNodeExampleCPP";
+	this->device.applicationSoftwareVersion = APPLICATION_VERSION;
 	// Setup the Analog Input Object
 	this->analogInput.objectName = "Example Analog Input";
 	this->analogInput.instance = 1;

@@ -81,7 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\.\submodules\cas-bacnet-stack\source;$(SolutionDir)..\.\submodules\cas-bacnet-stack\submodules\xml2json\include;$(SolutionDir)..\.\submodules\cas-bacnet-stack\adapters\cpp;$(SolutionDir)..\.\bin\;$(VcpkgRoot)\installed\x86-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\.\websocket;$(SolutionDir)..\.\submodules\cas-bacnet-stack\source;$(SolutionDir)..\.\submodules\cas-bacnet-stack\submodules\xml2json\include;$(SolutionDir)..\.\submodules\cas-bacnet-stack\adapters\cpp;$(SolutionDir)..\.\bin\;$(VcpkgRoot)\installed\x86-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -99,7 +99,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\.\submodules\cas-bacnet-stack\source;$(SolutionDir)..\.\submodules\cas-bacnet-stack\submodules\xml2json\include;$(SolutionDir)..\.\submodules\cas-bacnet-stack\adapters\cpp;$(SolutionDir)..\.\bin\;$(VcpkgRoot)\installed\x86-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\.\websocket;$(SolutionDir)..\.\submodules\cas-bacnet-stack\source;$(SolutionDir)..\.\submodules\cas-bacnet-stack\submodules\xml2json\include;$(SolutionDir)..\.\submodules\cas-bacnet-stack\adapters\cpp;$(SolutionDir)..\.\bin\;$(VcpkgRoot)\installed\x86-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -115,7 +115,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\submodules\cas-bacnet-stack\source;$(SolutionDir)..\submodules\cas-bacnet-stack\submodules\xml2json\include;$(SolutionDir)..\submodules\cas-bacnet-stack\adapters\cpp;$(SolutionDir)..\bin\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\websocket;$(SolutionDir)..\submodules\cas-bacnet-stack\source;$(SolutionDir)..\submodules\cas-bacnet-stack\submodules\xml2json\include;$(SolutionDir)..\submodules\cas-bacnet-stack\adapters\cpp;$(SolutionDir)..\bin\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -131,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\submodules\cas-bacnet-stack\source;$(SolutionDir)..\submodules\cas-bacnet-stack\submodules\xml2json\include;$(SolutionDir)..\submodules\cas-bacnet-stack\adapters\cpp;$(SolutionDir)..\bin\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\websocket;$(SolutionDir)..\submodules\cas-bacnet-stack\source;$(SolutionDir)..\submodules\cas-bacnet-stack\submodules\xml2json\include;$(SolutionDir)..\submodules\cas-bacnet-stack\adapters\cpp;$(SolutionDir)..\bin\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -557,7 +557,7 @@
     <ClCompile Include="..\submodules\cas-bacnet-stack\source\MSTP.c" />
     <ClCompile Include="..\submodules\cas-bacnet-stack\source\XMLRenderer.cpp" />
     <ClCompile Include="BACnetSCNodeExampleCPP.cpp" />
-    <ClCompile Include="BACnetSCWebsocketClient.cpp" />
+    <ClCompile Include="..\.\websocket\BACnetSCWebsocketClient.cpp" />
     <ClCompile Include="CASBACnetStackExampleDatabase.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -983,10 +983,11 @@
     <ClInclude Include="..\submodules\cas-bacnet-stack\source\MSTP.h" />
     <ClInclude Include="..\submodules\cas-bacnet-stack\source\version.h" />
     <ClInclude Include="..\submodules\cas-bacnet-stack\source\XMLRenderer.h" />
-    <ClInclude Include="BACnetSCWebsocketClient.h" />
+    <ClInclude Include="..\.\websocket\BACnetSCWebsocketClient.h" />
     <ClInclude Include="CASBACnetStackExampleConstants.h" />
     <ClInclude Include="CASBACnetStackExampleDatabase.h" />
     <ClInclude Include="CIBuildSettings.h" />
+    <ClInclude Include="version.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

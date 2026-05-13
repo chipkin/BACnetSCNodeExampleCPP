@@ -46,6 +46,8 @@ class ExampleDatabaseDevice : public ExampleDatabaseBaseObject
 {
 public:
 	uint32_t systemStatus;
+	std::string description;
+	std::string applicationSoftwareVersion;
 	ExampleDatabaseDevice();
 };
 

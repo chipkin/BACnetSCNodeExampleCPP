@@ -10,13 +10,14 @@ The application connects to a BACnet/SC Hub over a secure WebSocket (WSS) with m
 
 1. [Requirements](#requirements)
 2. [Project Structure](#project-structure)
-3. [Implementation Steps](#implementation-steps)
-4. [Certificates](#certificates)
-5. [Building](#building)
-6. [Running](#running)
-7. [User Input](#user-input)
-8. [Sample Output](#sample-output)
-9. [Architecture Notes](#architecture-notes)
+3. [BACnetSCWebsocketClient](#bacnetscwebsocketclient)
+4. [Implementation Steps](#implementation-steps)
+5. [Certificates](#certificates)
+6. [Building](#building)
+7. [Running](#running)
+8. [User Input](#user-input)
+9. [Sample Output](#sample-output)
+10. [Architecture Notes](#architecture-notes)
 
 ---
 
@@ -42,20 +43,44 @@ vcpkg install libwebsockets:x86-windows openssl:x86-windows
 ```
 BACnetSCNodeExampleCPP/
 ├── BACnetSCNodeExampleCPP/
-│   ├── BACnetSCNodeExampleCPP.cpp      # Main application entry point
-│   ├── BACnetSCWebsocketClient.h/.cpp  # libwebsockets WSS client wrapper
-│   ├── CASBACnetStackAdapter.h/.cpp    # CAS BACnet Stack function pointer loader
-│   ├── CASBACnetStackExampleDatabase.h/.cpp  # In-memory BACnet object database
-│   └── BACnetSCNodeExampleCPP.vcxproj # Visual Studio project file
+│   ├── BACnetSCNodeExampleCPP.cpp           # Main application entry point
+│   ├── CASBACnetStackAdapter.h/.cpp         # CAS BACnet Stack function pointer loader
+│   ├── CASBACnetStackExampleDatabase.h/.cpp # In-memory BACnet object database
+│   ├── version.h                            # APPLICATION_VERSION constant
+│   ├── CIBuildSettings.h                    # CI build number (CI-managed)
+│   └── BACnetSCNodeExampleCPP.vcxproj       # Visual Studio project file
+├── websocket/
+│   ├── BACnetSCWebsocketClient.h/.cpp       # libwebsockets WSS client wrapper (example)
+│   ├── README.md                            # BACnetSCWebsocketClient documentation
+│   ├── CHANGELOG.md                         # BACnetSCWebsocketClient version history
+│   └── WEBSOCKET_IMPLEMENTATION_PLAN.md     # Original design notes
 ├── exampleCerts/
-│   ├── README.md                       # Certificate generation instructions
-│   ├── iss-1.pem                       # CA certificate (not committed)
-│   ├── opr-389000.pem                  # Client certificate (not committed)
-│   └── key-389000.pem                  # Client private key (not committed)
+│   ├── README.md                            # Certificate generation instructions
+│   ├── iss-1.pem                            # CA certificate (not committed)
+│   ├── opr-389000.pem                       # Client certificate (not committed)
+│   └── key-389000.pem                       # Client private key (not committed)
 ├── submodules/
-│   └── cas-bacnet-stack/               # CAS BACnet Stack source
+│   └── cas-bacnet-stack/                    # CAS BACnet Stack source
 └── README.md
 ```
+
+---
+
+## BACnetSCWebsocketClient
+
+> **This is an example implementation only.**
+> `BACnetSCWebsocketClient` is provided to demonstrate how to integrate a WebSocket client
+> with the CAS BACnet Stack's SC callbacks. It is intentionally minimal. Real-world
+> applications should use or build a WebSocket client that meets their own requirements for
+> error handling, reconnection policy, logging, and operational security. The class makes no
+> claims of production readiness.
+
+`BACnetSCWebsocketClient` wraps [libwebsockets](https://libwebsockets.org/) 4.x to provide
+an outbound WSS connection from a BACnet/SC Node to a BACnet/SC Hub. It is completely
+decoupled from the BACnet stack — it communicates only via a `WebSocketStatusCallback`
+function pointer and raw byte buffers.
+
+See [websocket/README.md](websocket/README.md) for the full API reference and threading model.
 
 ---
 
@@ -69,7 +94,7 @@ The `cas-bacnet-stack` repository is included as a Git submodule under `submodul
 
 ### 2. Create `BACnetSCWebsocketClient`
 
-A standalone `BACnetSCWebsocketClient` class wraps libwebsockets 4.x. It is fully decoupled from the BACnet stack — it knows nothing about `CASBACnetStackAdapter.h` and communicates only via a `WebSocketStatusCallback` function pointer typedef.
+A standalone `BACnetSCWebsocketClient` class (in `websocket/`) wraps libwebsockets 4.x. It is fully decoupled from the BACnet stack — it knows nothing about `CASBACnetStackAdapter.h` and communicates only via a `WebSocketStatusCallback` function pointer typedef.
 
 **Key design decisions:**
 
@@ -98,7 +123,7 @@ Three BACnet/SC-specific callbacks are registered with the stack:
 ### 5. Set up the BACnet device and objects
 
 `SetupDevice()` creates:
-- **Device** object — instance `389999`, name `"Example BACnet SC Node"`
+- **Device** object — instance `389990`, name `"Chipkin Example SC Node"`, description set to the repository URL, application software version set from `version.h`
 - **Analog Input** object — instance `1`, name `"Example Analog Input"`, present value `0.0`, units Degrees Celsius (21), with Reliability and COV Increment properties enabled
 - **SC Network Port** object — instance `0`, network type `secureConnect`
 
@@ -108,7 +133,7 @@ Services enabled: `ReadPropertyMultiple`, `SubscribeCOV`.
 
 `ConfigureBACnetSC()` calls:
 - `fpSetBACnetSCUuid()` — sets a fixed 16-byte device UUID so the Hub can identify this device across reconnections.
-- `fpSetBACnetSCHubConnector()` — sets the VMAC (`00:01:02:03:04:05`), primary Hub URI (`wss://127.0.0.1:4443/bacnet-sc`), and no failover hub. This triggers the first `CallbackInitiateWebsocket`.
+- `fpSetBACnetSCHubConnector()` — sets the VMAC (`00:01:02:03:04:05`), the primary Hub URI (default `wss://127.0.0.1:4443/bacnet-sc`, overridable via `--hub-uri`), and no failover hub. This triggers the first `CallbackInitiateWebsocket`.
 
 ### 7. Main loop
 
@@ -173,8 +198,9 @@ cd BACnetSCNodeExampleCPP\Debug
 | Argument | Description |
 |---|---|
 | `--key-password <passphrase>` | Passphrase for the encrypted client private key (`key-389000.pem`). Required if the key was generated with a passphrase. |
+| `--hub-uri <uri>` | Primary Hub URI. Defaults to `wss://127.0.0.1:4443/bacnet-sc`. |
 
-The Hub URI (`wss://127.0.0.1:4443/bacnet-sc`) and certificate paths (`../exampleCerts/`) are hardcoded in `CASBACnetStackExampleDatabase.cpp`. Adjust them there before building if your Hub is on a different address or port.
+Certificate paths (`../exampleCerts/`) are configured in `CASBACnetStackExampleDatabase.cpp`. Adjust them there before building if your certificates are in a different location.
 
 ---
 
@@ -198,11 +224,14 @@ When a value is changed with `i` or `d`, `fpValueUpdated()` is called to notify 
 
 ```
 CAS BACnet Stack SC Node Example v1.0.0.0
+BACnetSCWebsocketClient v1.0.0
 https://github.com/chipkin/BACnetSCNodeExampleCPP
+
+Hub URI: wss://127.0.0.1:4443/bacnet-sc
 
 FYI: Loading CAS BACnet Stack functions... OK
 FYI: CAS BACnet Stack version: 5.3.3.0
-Setting up BACnet device, instance=389999
+Setting up BACnet device, instance=389990
 Adding AnalogInput, instance=1
 Adding SC NetworkPort, instance=0
 Device setup complete.

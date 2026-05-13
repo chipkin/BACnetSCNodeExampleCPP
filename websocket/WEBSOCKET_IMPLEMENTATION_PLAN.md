@@ -1,5 +1,7 @@
 # WebSocket Implementation Plan for BACnet/SC Node
 
+**Version: 1.0.0**
+
 ## Overview
 
 This plan covers adding WebSocket (WSS) client support to the BACnet/SC Node example using
