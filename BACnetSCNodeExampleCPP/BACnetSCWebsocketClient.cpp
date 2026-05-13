@@ -134,6 +134,9 @@ bool BACnetSCWebsocketClient::Connect()
         return false;
     }
 
+    // Determine SSL from URI scheme before parsing.
+    const bool useSSL = (m_hubUri.rfind("wss://", 0) == 0);
+
     // Parse the URI.
     std::string host, path;
     int port = 0;
