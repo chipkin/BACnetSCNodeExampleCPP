@@ -112,8 +112,9 @@ bool BACnetSCWebsocketClient::Connect()
     const bool hasClientKeyPath = !m_clientKeyPath.empty();
     if (hasClientCertPath != hasClientKeyPath)
     {
-        fprintf(stderr,
-                "BACnetSCWebsocketClient: Client certificate and key paths must be configured together.\n");
+        fprintf(stderr, "BACnetSCWebsocketClient: %s path provided without %s path.\n",
+                hasClientCertPath ? "Client certificate" : "Client private key",
+                hasClientCertPath ? "client private key" : "client certificate");
         return false;
     }
     if (hasClientCertPath)
