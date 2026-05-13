@@ -25,12 +25,11 @@
 #include <atomic>
 #include <mutex>
 #include <thread>
+#include <libwebsockets.h>
 
-// Forward-declare libwebsockets types so consumers of this header do not need
-// to include libwebsockets.h directly.
+// Forward-declare libwebsockets pointer types used by this header.
 struct lws_context;
 struct lws;
-enum lws_callback_reasons;
 
 // Callback signature matching BACnetStack_SetBACnetSCWebSocketStatus.
 // Called by the client when the WebSocket connection state changes so the
