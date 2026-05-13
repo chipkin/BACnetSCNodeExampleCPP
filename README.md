@@ -124,8 +124,8 @@ Sleep(0)                        ← Yield the CPU
 
 The following settings were added to the Visual Studio project for **Debug|Win32** and **Release|Win32**:
 
-- **Additional Include Directories**: `C:\vcpkg\installed\x86-windows\include`
-- **Additional Library Directories**: `C:\vcpkg\installed\x86-windows\debug\lib` (Debug) / `...\lib` (Release)
+- **Additional Include Directories**: `$(VcpkgRoot)\installed\x86-windows\include`
+- **Additional Library Directories**: `$(VcpkgRoot)\installed\x86-windows\debug\lib` (Debug) / `$(VcpkgRoot)\installed\x86-windows\lib` (Release)
 - **Additional Dependencies**: `websockets.lib;libssl.lib;libcrypto.lib`
 
 ---
