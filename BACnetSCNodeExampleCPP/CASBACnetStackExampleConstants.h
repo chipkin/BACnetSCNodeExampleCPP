@@ -91,6 +91,7 @@ public:
 	// Property Identifiers
 	static const uint32_t PROPERTY_IDENTIFIER_ALL = 8;
 	static const uint32_t PROPERTY_IDENTIFIER_APPLICATION_SOFTWARE_VERSION = 12;
+	static const uint32_t PROPERTY_IDENTIFIER_ARCHIVE = 13;
 	static const uint32_t PROPERTY_IDENTIFIER_COV_INCREMENT = 22;
 	static const uint32_t PROPERTY_IDENTIFIER_DAY_LIGHT_SAVINGS_STATUS = 24;
 	static const uint32_t PROPERTY_IDENTIFIER_DESCRIPTION = 28;
@@ -100,6 +101,7 @@ public:
 	static const uint32_t PROPERTY_IDENTIFIER_LOCAL_TIME = 57;
 	static const uint32_t PROPERTY_IDENTIFIER_MAX_PRES_VALUE = 65;
 	static const uint32_t PROPERTY_IDENTIFIER_MIN_PRES_VALUE = 69;
+	static const uint32_t PROPERTY_IDENTIFIER_MODIFICATION_DATE = 71;
 	static const uint32_t PROPERTY_IDENTIFIER_NUMBER_OF_STATES = 74;
 	static const uint32_t PROPERTY_IDENTIFIER_OBJECT_IDENTIFIER = 75;
 	static const uint32_t PROPERTY_IDENTIFIER_OBJECT_NAME = 77;
@@ -132,6 +134,8 @@ public:
 
 	// Services Supported
 	static const uint8_t SERVICE_SUBSCRIBE_COV = 5;
+	static const uint8_t SERVICE_ATOMIC_READ_FILE = 6;
+	static const uint8_t SERVICE_ATOMIC_WRITE_FILE = 7;
 	static const uint8_t SERVICE_CREATE_OBJECT = 10;
 	static const uint8_t SERVICE_DELETE_OBJECT = 11;
 	static const uint8_t SERVICE_READ_PROPERTY_MULTIPLE = 14;
@@ -169,6 +173,9 @@ public:
 	static const uint8_t NETWORK_TYPE_BACNET_IP = 0;
 	static const uint8_t NETWORK_TYPE_IPV4 = 5;
 	static const uint8_t NETWORK_TYPE_SECURE_CONNECT = 11;
+
+	// File Access Methods
+	static const uint8_t FILE_ACCESS_METHOD_STREAM = 1;
 
 	// Protocol Level
 	static const uint8_t PROTOCOL_LEVEL_BACNET_APPLICATION = 2;

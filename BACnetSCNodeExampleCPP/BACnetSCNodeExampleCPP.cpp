@@ -57,12 +57,15 @@ void Sleep(int milliseconds)
 
 #endif // __GNUC__
 
+#include <sys/stat.h> // _stat / stat for file size queries
+
 // Globals
 // =======================================
-ExampleDatabase g_exampleDatabase;				 // The example database that stores current values.
-BACnetSCWebsocketClient g_websocketClient; // Outbound WSS client connection to the BACnet/SC Hub.
-bool g_initialIAmSent = false;						 // Tracks whether the I-Am has been sent after connection.
-std::string g_clientKeyPassword;					 // Passphrase for the encrypted client private key.
+ExampleDatabase g_exampleDatabase;															// The example database that stores current values.
+BACnetSCWebsocketClient g_websocketClient;											// Outbound WSS client connection to the BACnet/SC Hub.
+bool g_initialIAmSent = false;																	// Tracks whether the I-Am has been sent after connection.
+std::string g_clientKeyPassword;																// Passphrase for the encrypted client private key.
+std::string g_clientKeyPath = "../exampleCerts/key-389000.pem"; // Path to the client private key PEM file.
 
 // ============================================================
 // UUID: 16-byte unique identifier for this device
@@ -95,12 +98,31 @@ time_t CallbackGetSystemTime();
 // Get Property Functions
 bool CallbackGetPropertyCharString(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, char *value, uint32_t *valueElementCount, const uint32_t maxElementCount, uint8_t *encodingType, const bool useArrayIndex, const uint32_t propertyArrayIndex);
 bool CallbackGetPropertyEnum(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, uint32_t *value, bool useArrayIndex, uint32_t propertyArrayIndex);
+bool CallbackGetPropertyBool(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, bool *value, const bool useArrayIndex, const uint32_t propertyArrayIndex);
+bool CallbackGetPropertyDate(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, uint8_t *year, uint8_t *month, uint8_t *day, uint8_t *weekday, const bool useArrayIndex, const uint32_t propertyArrayIndex);
+bool CallbackGetPropertyTime(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, uint8_t *hour, uint8_t *minute, uint8_t *second, uint8_t *hundredthSeconds, const bool useArrayIndex, const uint32_t propertyArrayIndex);
 bool CallbackGetPropertyReal(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, float *value, bool useArrayIndex, uint32_t propertyArrayIndex);
+bool CallbackGetPropertyUInt(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, uint32_t *value, bool useArrayIndex, uint32_t propertyArrayIndex);
+
+// Set Property Functions
+bool CallbackSetPropertyBool(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, const bool value, const bool useArrayIndex, const uint32_t propertyArrayIndex, const uint8_t priority, uint32_t *errorCode);
+
+// File IO Callback Functions
+bool CallbackReadFile(const uint32_t deviceInstance, const uint32_t fileInstance, const uint32_t fileStart, const uint32_t requestedCount, uint8_t *fileData, uint32_t *fileDataLength, const uint32_t maxFileDataLength, bool *endOfFile, uint32_t *errorCode);
+bool CallbackWriteFile(const uint32_t deviceInstance, const uint32_t fileInstance, const int32_t fileStart, const uint8_t *fileData, const uint32_t fileDataLength, int32_t *ackFileStart, uint32_t *errorCode);
+
+static ExampleDatabaseFile *FindFileByInstance(uint32_t fileInstance);
 
 // BACnetSC Callback Functions
 bool CallbackInitiateWebsocket(const char *websocketUri, const uint32_t websocketUriLength);
 void CallbackDisconnectWebsocket(const char *websocketUri, const uint32_t websocketUriLength);
 void CallbackBACnetSCStateChange(const uint32_t deviceInstance, const uint32_t networkPortInstance, const uint8_t stateMachine, const uint8_t previousState, const uint8_t newState, const char *websocketUri, const uint32_t websocketUriLength);
+
+// Helper Function Prototypes
+//=======================================
+
+ExampleDatabaseFile *FindFileByInstance(uint32_t fileInstance);
+bool GetFileModificationTime(const std::string &filePath, struct tm *out);
 
 int main(int argc, char **argv)
 {
@@ -110,6 +132,10 @@ int main(int argc, char **argv)
 		if (strcmp(argv[i], "--key-password") == 0 && i + 1 < argc)
 		{
 			g_clientKeyPassword = argv[++i];
+		}
+		else if (strcmp(argv[i], "--key-path") == 0 && i + 1 < argc)
+		{
+			g_clientKeyPath = argv[++i];
 		}
 		else if (strcmp(argv[i], "--hub-uri") == 0 && i + 1 < argc)
 		{
@@ -195,16 +221,25 @@ void RegisterCallbacks()
 
 	// Get Property Callback Functions
 	// fpRegisterCallbackGetPropertyBitString(CallbackGetPropertyBitString);
-	// fpRegisterCallbackGetPropertyBool(CallbackGetPropertyBool);
+	fpRegisterCallbackGetPropertyBool(CallbackGetPropertyBool);
 	fpRegisterCallbackGetPropertyCharacterString(CallbackGetPropertyCharString);
 	// fpRegisterCallbackGetPropertyDate(CallbackGetPropertyDate);
+	fpRegisterCallbackGetPropertyDate(CallbackGetPropertyDate);
 	// fpRegisterCallbackGetPropertyDouble(CallbackGetPropertyDouble);
 	fpRegisterCallbackGetPropertyEnumerated(CallbackGetPropertyEnum);
 	// fpRegisterCallbackGetPropertyOctetString(CallbackGetPropertyOctetString);
 	// fpRegisterCallbackGetPropertySignedInteger(CallbackGetPropertyInt);
 	fpRegisterCallbackGetPropertyReal(CallbackGetPropertyReal);
 	// fpRegisterCallbackGetPropertyTime(CallbackGetPropertyTime);
-	// fpRegisterCallbackGetPropertyUnsignedInteger(CallbackGetPropertyUInt);
+	fpRegisterCallbackGetPropertyTime(CallbackGetPropertyTime);
+	fpRegisterCallbackGetPropertyUnsignedInteger(CallbackGetPropertyUInt);
+
+	// Set Property Callback Functions
+	fpRegisterCallbackSetPropertyBool(CallbackSetPropertyBool);
+
+	// File IO Callback Functions
+	fpRegisterCallbackReadFile(CallbackReadFile);
+	fpRegisterCallbackWriteFile(CallbackWriteFile);
 
 	// BACnet SC Callback Functions
 	fpRegisterCallbackInitiateWebsocket(CallbackInitiateWebsocket);
@@ -274,6 +309,66 @@ bool SetupDevice()
 	{
 		fprintf(stderr, "ERROR: Failed to add SC NetworkPort\n");
 		return false;
+	}
+
+	// --------------------------------------------------------
+	// 5. Add File objects for the certificate files (BACnet Atomic File IO)
+	// --------------------------------------------------------
+	printf("Adding File objects for certificate files\n");
+	if (!fpAddFileObject(g_exampleDatabase.device.instance, g_exampleDatabase.operationalCertFile.instance, g_exampleDatabase.operationalCertFile.isWritable, true, CASBACnetStackExampleConstants::FILE_ACCESS_METHOD_STREAM))
+	{
+		fprintf(stderr, "ERROR: Failed to add operational certificate File object\n");
+		return false;
+	}
+	if (!fpAddFileObject(g_exampleDatabase.device.instance, g_exampleDatabase.issuerCertFile1.instance, g_exampleDatabase.issuerCertFile1.isWritable, true, CASBACnetStackExampleConstants::FILE_ACCESS_METHOD_STREAM))
+	{
+		fprintf(stderr, "ERROR: Failed to add issuer certificate 1 File object\n");
+		return false;
+	}
+	if (!fpAddFileObject(g_exampleDatabase.device.instance, g_exampleDatabase.issuerCertFile2.instance, g_exampleDatabase.issuerCertFile2.isWritable, true, CASBACnetStackExampleConstants::FILE_ACCESS_METHOD_STREAM))
+	{
+		fprintf(stderr, "ERROR: Failed to add issuer certificate 2 File object\n");
+		return false;
+	}
+	if (!fpAddFileObject(g_exampleDatabase.device.instance, g_exampleDatabase.csrFile.instance, g_exampleDatabase.csrFile.isWritable, true, CASBACnetStackExampleConstants::FILE_ACCESS_METHOD_STREAM))
+	{
+		fprintf(stderr, "ERROR: Failed to add CSR File object\n");
+		return false;
+	}
+	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_FILE, g_exampleDatabase.operationalCertFile.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_DESCRIPTION, true);
+	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_FILE, g_exampleDatabase.issuerCertFile1.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_DESCRIPTION, true);
+	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_FILE, g_exampleDatabase.issuerCertFile2.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_DESCRIPTION, true);
+	fpSetPropertyEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::OBJECT_TYPE_FILE, g_exampleDatabase.csrFile.instance, CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_DESCRIPTION, true);
+	if (!fpSetServiceEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::SERVICE_ATOMIC_READ_FILE, true))
+	{
+		fprintf(stderr, "ERROR: Failed to enable AtomicReadFile service\n");
+		return false;
+	}
+	if (!fpSetServiceEnabled(g_exampleDatabase.device.instance, CASBACnetStackExampleConstants::SERVICE_ATOMIC_WRITE_FILE, true))
+	{
+		fprintf(stderr, "ERROR: Failed to enable AtomicWriteFile service\n");
+		return false;
+	}
+
+	// Link the certificate File objects to the BACnet/SC Network Port so the
+	// stack knows which BACnet File objects hold the operational certificate
+	// and issuer CA certificates for this SC connection.
+	printf("Linking certificate File objects to the SC NetworkPort\n");
+	{
+		uint32_t issuerInstances[] = {g_exampleDatabase.issuerCertFile1.instance, g_exampleDatabase.issuerCertFile2.instance};
+		if (!fpSetBACnetSCCertificateFileObjects(
+						g_exampleDatabase.device.instance,
+						g_exampleDatabase.networkPort.instance,
+						true, // hasOperationalCertificateFile
+						g_exampleDatabase.operationalCertFile.instance,
+						true, // hasCertificateSigningRequestFile
+						g_exampleDatabase.csrFile.instance,
+						issuerInstances,
+						2)) // issuerCertificateFileCount
+		{
+			fprintf(stderr, "ERROR: Failed to link certificate File objects to SC NetworkPort\n");
+			return false;
+		}
 	}
 
 	printf("Device setup complete.\n");
@@ -421,6 +516,7 @@ void PrintHelp()
 
 	printf("Command-line arguments:\n");
 	printf("  --hub-uri <uri>        Hub WebSocket URI (default: wss://127.0.0.1:4443/bacnet-sc)\n");
+	printf("  --key-path <path>      Client private key path (default: ../exampleCerts/key-389000.pem)\n");
 	printf("  --key-password <pass>  Private key passphrase for mutual TLS\n");
 	printf("\n");
 	printf("Help:\n");
@@ -468,6 +564,26 @@ time_t CallbackGetSystemTime()
 	return time(0);
 }
 
+// Callback used by the BACnet Stack to get Bool property values from the user
+bool CallbackGetPropertyBool(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, bool *value, const bool useArrayIndex, const uint32_t propertyArrayIndex)
+{
+	if (deviceInstance != g_exampleDatabase.device.instance)
+		return false;
+
+	if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_FILE &&
+			propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_ARCHIVE)
+	{
+		const ExampleDatabaseFile *f = FindFileByInstance(objectInstance);
+		if (f)
+		{
+			*value = f->archive;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 // Callback used by the BACnet Stack to get Character String property values from the user
 bool CallbackGetPropertyCharString(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, char *value, uint32_t *valueElementCount, const uint32_t maxElementCount, uint8_t *encodingType, const bool useArrayIndex, const uint32_t propertyArrayIndex)
 {
@@ -496,6 +612,16 @@ bool CallbackGetPropertyCharString(const uint32_t deviceInstance, const uint16_t
 				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
 				return true;
 			}
+			else if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_FILE)
+			{
+				const ExampleDatabaseFile *f = FindFileByInstance(objectInstance);
+				if (!f)
+					return false;
+				strncpy(value, f->objectName.c_str(), maxElementCount);
+				*valueElementCount = (uint32_t)f->objectName.length();
+				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
+				return true;
+			}
 		}
 		else if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_DESCRIPTION)
 		{
@@ -503,6 +629,16 @@ bool CallbackGetPropertyCharString(const uint32_t deviceInstance, const uint16_t
 			{
 				strncpy(value, g_exampleDatabase.device.description.c_str(), maxElementCount);
 				*valueElementCount = (uint32_t)g_exampleDatabase.device.description.length();
+				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
+				return true;
+			}
+			else if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_FILE)
+			{
+				const ExampleDatabaseFile *f = FindFileByInstance(objectInstance);
+				if (!f)
+					return false;
+				strncpy(value, f->description.c_str(), maxElementCount);
+				*valueElementCount = (uint32_t)f->description.length();
 				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
 				return true;
 			}
@@ -517,6 +653,50 @@ bool CallbackGetPropertyCharString(const uint32_t deviceInstance, const uint16_t
 				return true;
 			}
 		}
+		else if (propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_FILE_TYPE)
+		{
+			if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_FILE)
+			{
+				static const char fileType[] = "application/x-pem-file";
+				strncpy(value, fileType, maxElementCount);
+				*valueElementCount = (uint32_t)(sizeof(fileType) - 1);
+				*encodingType = CASBACnetStackExampleConstants::ENCODING_TYPE_UTF8;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+// Callback used by the BACnet Stack to get Date property values from the user
+bool CallbackGetPropertyDate(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, uint8_t *year, uint8_t *month, uint8_t *day, uint8_t *weekday, const bool useArrayIndex, const uint32_t propertyArrayIndex)
+{
+	if (deviceInstance != g_exampleDatabase.device.instance)
+		return false;
+
+	if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_FILE &&
+			propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_MODIFICATION_DATE)
+	{
+		const ExampleDatabaseFile *f = FindFileByInstance(objectInstance);
+		if (!f)
+			return false;
+		struct tm t;
+		if (!GetFileModificationTime(f->filePath, &t))
+		{
+			// File does not exist on disk — return BACnet unspecified date (all 0xFF)
+			*year = 0xFF;
+			*month = 0xFF;
+			*day = 0xFF;
+			*weekday = 0xFF;
+			return true;
+		}
+		// BACnet year is years since 1900; month is 1-12; weekday is 1 (Mon)–7 (Sun)
+		*year = static_cast<uint8_t>(t.tm_year); // tm_year is already years since 1900
+		*month = static_cast<uint8_t>(t.tm_mon + 1);
+		*day = static_cast<uint8_t>(t.tm_mday);
+		*weekday = static_cast<uint8_t>(t.tm_wday == 0 ? 7 : t.tm_wday);
+		return true;
 	}
 
 	return false;
@@ -561,14 +741,180 @@ bool CallbackGetPropertyReal(uint32_t deviceInstance, uint16_t objectType, uint3
 	return false;
 }
 
+// Callback used by the BACnet Stack to get Time property values from the user
+bool CallbackGetPropertyTime(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, uint8_t *hour, uint8_t *minute, uint8_t *second, uint8_t *hundredthSeconds, const bool useArrayIndex, const uint32_t propertyArrayIndex)
+{
+	if (deviceInstance != g_exampleDatabase.device.instance)
+		return false;
+
+	if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_FILE &&
+			propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_MODIFICATION_DATE)
+	{
+		const ExampleDatabaseFile *f = FindFileByInstance(objectInstance);
+		if (!f)
+			return false;
+		struct tm t;
+		if (!GetFileModificationTime(f->filePath, &t))
+		{
+			// File does not exist on disk — return BACnet unspecified time (all 0xFF)
+			*hour = 0xFF;
+			*minute = 0xFF;
+			*second = 0xFF;
+			*hundredthSeconds = 0xFF;
+			return true;
+		}
+		*hour = static_cast<uint8_t>(t.tm_hour);
+		*minute = static_cast<uint8_t>(t.tm_min);
+		*second = static_cast<uint8_t>(t.tm_sec);
+		*hundredthSeconds = 0;
+		return true;
+	}
+
+	return false;
+}
+
+// Callback used by the BACnet Stack to get Unsigned Integer property values from the user
+bool CallbackGetPropertyUInt(uint32_t deviceInstance, uint16_t objectType, uint32_t objectInstance, uint32_t propertyIdentifier, uint32_t *value, bool useArrayIndex, uint32_t propertyArrayIndex)
+{
+	if (deviceInstance != g_exampleDatabase.device.instance)
+		return false;
+
+	if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_FILE &&
+			propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_FILE_SIZE)
+	{
+		const ExampleDatabaseFile *f = FindFileByInstance(objectInstance);
+		if (!f)
+			return false;
+#ifndef __GNUC__
+		struct _stat st;
+		*value = (_stat(f->filePath.c_str(), &st) == 0) ? static_cast<uint32_t>(st.st_size) : 0;
+#else
+		struct stat st;
+		*value = (stat(f->filePath.c_str(), &st) == 0) ? static_cast<uint32_t>(st.st_size) : 0;
+#endif
+		return true;
+	}
+
+	return false;
+}
+
+// Callback used by the BACnet Stack to set Bool property values on objects
+bool CallbackSetPropertyBool(const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t propertyIdentifier, const bool value, const bool useArrayIndex, const uint32_t propertyArrayIndex, const uint8_t priority, uint32_t *errorCode)
+{
+	if (deviceInstance != g_exampleDatabase.device.instance)
+		return false;
+
+	if (objectType == CASBACnetStackExampleConstants::OBJECT_TYPE_FILE &&
+			propertyIdentifier == CASBACnetStackExampleConstants::PROPERTY_IDENTIFIER_ARCHIVE)
+	{
+		ExampleDatabaseFile *f = FindFileByInstance(objectInstance);
+		if (f)
+		{
+			f->archive = value;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// Callback used by the BACnet Stack to read a chunk of a File object (AtomicReadFile)
+bool CallbackReadFile(const uint32_t deviceInstance, const uint32_t fileInstance, const uint32_t fileStart, const uint32_t requestedCount, uint8_t *fileData, uint32_t *fileDataLength, const uint32_t maxFileDataLength, bool *endOfFile, uint32_t *errorCode)
+{
+	const ExampleDatabaseFile *f = FindFileByInstance(fileInstance);
+	if (!f)
+	{
+		*errorCode = CASBACnetStackExampleConstants::ERROR_OPTIONAL_FUNCTIONALITY_NOT_SUPPORTED;
+		return false;
+	}
+	if (!f->isReadable)
+	{
+		fprintf(stderr, "CallbackReadFile: Read denied for file instance %u (%s)\n", fileInstance, f->objectName.c_str());
+		*errorCode = CASBACnetStackExampleConstants::ERROR_OPTIONAL_FUNCTIONALITY_NOT_SUPPORTED;
+		return false;
+	}
+
+	FILE *fp = fopen(f->filePath.c_str(), "rb");
+	if (!fp)
+	{
+		// File not present on disk (e.g. an unused issuer cert slot) — report as an empty file.
+		*fileDataLength = 0;
+		*endOfFile = true;
+		*errorCode = 0;
+		return true;
+	}
+
+	fseek(fp, 0, SEEK_END);
+	long fileSize = ftell(fp);
+
+	if (fseek(fp, static_cast<long>(fileStart), SEEK_SET) != 0)
+	{
+		fclose(fp);
+		*errorCode = CASBACnetStackExampleConstants::ERROR_VALUE_OUT_OF_RANGE;
+		return false;
+	}
+
+	uint32_t toRead = (requestedCount < maxFileDataLength) ? requestedCount : maxFileDataLength;
+	*fileDataLength = static_cast<uint32_t>(fread(fileData, 1, toRead, fp));
+	*endOfFile = (fileStart + *fileDataLength >= static_cast<uint32_t>(fileSize));
+	fclose(fp);
+	*errorCode = 0;
+	return true;
+}
+
+// Callback used by the BACnet Stack to write a chunk to a File object (AtomicWriteFile)
+bool CallbackWriteFile(const uint32_t deviceInstance, const uint32_t fileInstance, const int32_t fileStart, const uint8_t *fileData, const uint32_t fileDataLength, int32_t *ackFileStart, uint32_t *errorCode)
+{
+	ExampleDatabaseFile *f = FindFileByInstance(fileInstance);
+	if (!f)
+	{
+		*errorCode = CASBACnetStackExampleConstants::ERROR_OPTIONAL_FUNCTIONALITY_NOT_SUPPORTED;
+		return false;
+	}
+	if (!f->isWritable)
+	{
+		*errorCode = CASBACnetStackExampleConstants::ERROR_OPTIONAL_FUNCTIONALITY_NOT_SUPPORTED;
+		return false;
+	}
+
+	// Minimum PEM sanity check when writing from the beginning of the file.
+	if (fileStart == 0 && (fileDataLength < 10 || strncmp(reinterpret_cast<const char *>(fileData), "-----BEGIN", 10) != 0))
+	{
+		fprintf(stderr, "CallbackWriteFile: Rejected for file instance %u — data does not start with '-----BEGIN'\n", fileInstance);
+		*errorCode = CASBACnetStackExampleConstants::ERROR_INVALID_CONFIGURATION_DATA;
+		return false;
+	}
+
+	// fileStart < 0 means append; fileStart == 0 means overwrite from start; fileStart > 0 means update in place.
+	const char *mode = (fileStart < 0) ? "ab" : (fileStart == 0 ? "wb" : "r+b");
+	FILE *fp = fopen(f->filePath.c_str(), mode);
+	if (!fp)
+	{
+		fprintf(stderr, "CallbackWriteFile: Failed to open %s (mode=%s)\n", f->filePath.c_str(), mode);
+		*errorCode = CASBACnetStackExampleConstants::ERROR_OPTIONAL_FUNCTIONALITY_NOT_SUPPORTED;
+		return false;
+	}
+	if (fileStart > 0)
+	{
+		fseek(fp, static_cast<long>(fileStart), SEEK_SET);
+	}
+	fwrite(fileData, 1, fileDataLength, fp);
+	fclose(fp);
+
+	*ackFileStart = fileStart;
+	*errorCode = 0;
+	printf("FYI: File instance %u (%s) updated on disk. Restart the application to apply the new certificate.\n", fileInstance, f->objectName.c_str());
+	return true;
+}
+
 // Callback gets called when the CAS BACnet Stack needs to start listening for inbound BACnet / SC websocket connections
 bool CallbackInitiateWebsocket(const char *websocketUri, const uint32_t websocketUriLength)
 {
 	g_websocketClient.Configure(
 			std::string(websocketUri, websocketUriLength),
-			g_exampleDatabase.networkPort.caCertPath,
-			g_exampleDatabase.networkPort.clientCertPath,
-			g_exampleDatabase.networkPort.clientKeyPath,
+			g_exampleDatabase.issuerCertFile1.filePath,
+			g_exampleDatabase.operationalCertFile.filePath,
+			g_clientKeyPath,
 			g_clientKeyPassword);
 	g_websocketClient.SetStatusCallback(fpSetBACnetSCWebSocketStatus);
 	return g_websocketClient.Connect();
@@ -586,4 +932,36 @@ void CallbackBACnetSCStateChange(const uint32_t deviceInstance, const uint32_t n
 	printf("BACnet/SC State Change: deviceInstance=%u, networkPortInstance=%u, stateMachine=%u, previousState=%u, newState=%u, websocketUri=%.*s\n",
 				 deviceInstance, networkPortInstance, stateMachine, previousState, newState, websocketUriLength, websocketUri);
 	return;
+}
+
+// File IO Helper Functions
+// =======================================
+
+// Returns a pointer to the ExampleDatabaseFile matching fileInstance, or nullptr if not found.
+ExampleDatabaseFile *FindFileByInstance(uint32_t fileInstance)
+{
+	if (fileInstance == g_exampleDatabase.operationalCertFile.instance)
+		return &g_exampleDatabase.operationalCertFile;
+	if (fileInstance == g_exampleDatabase.issuerCertFile1.instance)
+		return &g_exampleDatabase.issuerCertFile1;
+	if (fileInstance == g_exampleDatabase.issuerCertFile2.instance)
+		return &g_exampleDatabase.issuerCertFile2;
+	if (fileInstance == g_exampleDatabase.csrFile.instance)
+		return &g_exampleDatabase.csrFile;
+	return nullptr;
+}
+
+// Helper: stat a file and fill a tm struct with its last-modification time.
+// Returns true on success, false if the file does not exist or cannot be stat'd.
+bool GetFileModificationTime(const std::string &filePath, struct tm *out)
+{
+	struct _stat st;
+	if (_stat(filePath.c_str(), &st) != 0)
+		return false;
+	time_t mtime = st.st_mtime;
+	struct tm *t = localtime(&mtime);
+	if (!t)
+		return false;
+	*out = *t;
+	return true;
 }
