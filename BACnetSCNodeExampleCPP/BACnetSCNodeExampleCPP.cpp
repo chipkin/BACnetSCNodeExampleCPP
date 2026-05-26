@@ -111,8 +111,6 @@ bool CallbackSetPropertyBool(const uint32_t deviceInstance, const uint16_t objec
 bool CallbackReadFile(const uint32_t deviceInstance, const uint32_t fileInstance, const uint32_t fileStart, const uint32_t requestedCount, uint8_t *fileData, uint32_t *fileDataLength, const uint32_t maxFileDataLength, bool *endOfFile, uint32_t *errorCode);
 bool CallbackWriteFile(const uint32_t deviceInstance, const uint32_t fileInstance, const int32_t fileStart, const uint8_t *fileData, const uint32_t fileDataLength, int32_t *ackFileStart, uint32_t *errorCode);
 
-static ExampleDatabaseFile *FindFileByInstance(uint32_t fileInstance);
-
 // BACnetSC Callback Functions
 bool CallbackInitiateWebsocket(const char *websocketUri, const uint32_t websocketUriLength);
 void CallbackDisconnectWebsocket(const char *websocketUri, const uint32_t websocketUriLength);
@@ -821,6 +819,11 @@ bool CallbackSetPropertyBool(const uint32_t deviceInstance, const uint16_t objec
 // Callback used by the BACnet Stack to read a chunk of a File object (AtomicReadFile)
 bool CallbackReadFile(const uint32_t deviceInstance, const uint32_t fileInstance, const uint32_t fileStart, const uint32_t requestedCount, uint8_t *fileData, uint32_t *fileDataLength, const uint32_t maxFileDataLength, bool *endOfFile, uint32_t *errorCode)
 {
+	if (deviceInstance != g_exampleDatabase.device.instance)
+	{
+		return false;
+	}
+
 	const ExampleDatabaseFile *f = FindFileByInstance(fileInstance);
 	if (!f)
 	{
@@ -865,6 +868,11 @@ bool CallbackReadFile(const uint32_t deviceInstance, const uint32_t fileInstance
 // Callback used by the BACnet Stack to write a chunk to a File object (AtomicWriteFile)
 bool CallbackWriteFile(const uint32_t deviceInstance, const uint32_t fileInstance, const int32_t fileStart, const uint8_t *fileData, const uint32_t fileDataLength, int32_t *ackFileStart, uint32_t *errorCode)
 {
+	if (deviceInstance != g_exampleDatabase.device.instance)
+	{
+		return false;
+	}
+
 	ExampleDatabaseFile *f = FindFileByInstance(fileInstance);
 	if (!f)
 	{
@@ -894,14 +902,35 @@ bool CallbackWriteFile(const uint32_t deviceInstance, const uint32_t fileInstanc
 		*errorCode = CASBACnetStackExampleConstants::ERROR_OPTIONAL_FUNCTIONALITY_NOT_SUPPORTED;
 		return false;
 	}
-	if (fileStart > 0)
+
+	// For append, capture the offset where writing will begin (= current file size).
+	// The BACnet ACK must report the actual start position, not the request's -1.
+	int32_t actualStart = fileStart;
+	if (fileStart < 0)
 	{
-		fseek(fp, static_cast<long>(fileStart), SEEK_SET);
+		fseek(fp, 0, SEEK_END);
+		actualStart = static_cast<int32_t>(ftell(fp));
 	}
-	fwrite(fileData, 1, fileDataLength, fp);
+	else if (fileStart > 0)
+	{
+		if (fseek(fp, static_cast<long>(fileStart), SEEK_SET) != 0)
+		{
+			fprintf(stderr, "CallbackWriteFile: fseek failed for %s at offset %d\n", f->filePath.c_str(), fileStart);
+			fclose(fp);
+			*errorCode = CASBACnetStackExampleConstants::ERROR_VALUE_OUT_OF_RANGE;
+			return false;
+		}
+	}
+	if (fwrite(fileData, 1, fileDataLength, fp) != fileDataLength)
+	{
+		fprintf(stderr, "CallbackWriteFile: fwrite failed (partial write) for %s\n", f->filePath.c_str());
+		fclose(fp);
+		*errorCode = CASBACnetStackExampleConstants::ERROR_NO_SPACE_TO_WRITE_PROPERTY;
+		return false;
+	}
 	fclose(fp);
 
-	*ackFileStart = fileStart;
+	*ackFileStart = actualStart;
 	*errorCode = 0;
 	printf("FYI: File instance %u (%s) updated on disk. Restart the application to apply the new certificate.\n", fileInstance, f->objectName.c_str());
 	return true;
