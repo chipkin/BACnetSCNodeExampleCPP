@@ -984,13 +984,23 @@ ExampleDatabaseFile *FindFileByInstance(uint32_t fileInstance)
 // Returns true on success, false if the file does not exist or cannot be stat'd.
 bool GetFileModificationTime(const std::string &filePath, struct tm *out)
 {
+	time_t mtime;
+#ifndef __GNUC__
 	struct _stat st;
 	if (_stat(filePath.c_str(), &st) != 0)
 		return false;
-	time_t mtime = st.st_mtime;
-	struct tm *t = localtime(&mtime);
-	if (!t)
+	mtime = st.st_mtime;
+	struct tm result;
+	if (localtime_s(&result, &mtime) != 0)
 		return false;
-	*out = *t;
+	*out = result;
+#else
+	struct stat st;
+	if (stat(filePath.c_str(), &st) != 0)
+		return false;
+	mtime = st.st_mtime;
+	if (!localtime_r(&mtime, out))
+		return false;
+#endif
 	return true;
 }

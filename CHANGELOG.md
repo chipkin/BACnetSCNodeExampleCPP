@@ -4,13 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
 ## [1.1.1] - 2026-05-26
 
 ### Fixed
 - **File write reliability** — disk I/O errors during an AtomicWriteFile request are now detected and reported back to the BACnet client as an error instead of silently succeeding. Previously, a failed seek or a partial write would still return a success response.
 - **AtomicWriteFile append ACK** — when a client appends to a file (file-start = -1), the acknowledgment now returns the actual byte offset where the data was written (the previous end-of-file position) as required by the BACnet standard. Previously it echoed back -1, which is not a valid ACK value.
+- **Cross-platform file timestamp support** — file modification time lookup (`Modification_Date` property) now compiles and runs correctly on both Windows (MSVC) and Linux (GCC). Uses thread-safe `localtime_s` on Windows and `localtime_r` on Linux instead of the non-thread-safe `localtime`.
 
 ## [1.1.0] - 2026-05-21
 
