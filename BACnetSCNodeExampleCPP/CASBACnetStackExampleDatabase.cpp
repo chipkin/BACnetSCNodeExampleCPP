@@ -35,9 +35,15 @@ ExampleDatabaseNetworkPort::ExampleDatabaseNetworkPort() : ExampleDatabaseBaseOb
 	this->changesPending = false;
 	memset(this->vmac, 0, sizeof(this->vmac));
 	this->primaryHubUri = "";
-	this->caCertPath = "";
-	this->clientCertPath = "";
-	this->clientKeyPath = "";
+}
+
+ExampleDatabaseFile::ExampleDatabaseFile() : ExampleDatabaseBaseObject()
+{
+	this->description = "";
+	this->filePath = "";
+	this->isWritable = false;
+	this->isReadable = true;
+	this->archive = true;
 }
 
 ExampleDatabase::ExampleDatabase()
@@ -76,7 +82,33 @@ void ExampleDatabase::Setup()
 	this->networkPort.vmac[3] = 0x03;
 	this->networkPort.vmac[4] = 0x04;
 	this->networkPort.vmac[5] = 0x05;
-	this->networkPort.caCertPath = "../exampleCerts/iss-1.pem";
-	this->networkPort.clientCertPath = "../exampleCerts/opr-389000.pem";
-	this->networkPort.clientKeyPath = "../exampleCerts/key-389000.pem";
+	// Setup the File objects for the certificate files
+	this->operationalCertFile.instance = 0;
+	this->operationalCertFile.objectName = "Operational-Certificate";
+	this->operationalCertFile.description = "Operational certificate";
+	this->operationalCertFile.filePath = "../exampleCerts/opr-389000.pem";
+	this->operationalCertFile.isWritable = true;
+	this->operationalCertFile.isReadable = true;
+
+	this->issuerCertFile1.instance = 1;
+	this->issuerCertFile1.objectName = "Issuer-Certificate-1";
+	this->issuerCertFile1.description = "Issuer CA certificate (primary)";
+	this->issuerCertFile1.filePath = "../exampleCerts/iss-1.pem";
+	this->issuerCertFile1.isWritable = true;
+	this->issuerCertFile1.isReadable = true;
+
+	this->issuerCertFile2.instance = 2;
+	this->issuerCertFile2.objectName = "Issuer-Certificate-2";
+	this->issuerCertFile2.description = "Issuer CA certificate (secondary, unused)";
+	this->issuerCertFile2.filePath = "../exampleCerts/iss-2.pem"; // slot - file need not exist
+	this->issuerCertFile2.isWritable = false; // Not writable since this is just a placeholder for a secondary issuer certificate that isn't actually used in this example
+	this->issuerCertFile2.isReadable = false; // Not readable since this is just a placeholder for a secondary issuer certificate that isn't actually used in this example
+	this->issuerCertFile2.archive = false; // Don't include in Archive since it's not actually used
+
+	this->csrFile.instance = 3;
+	this->csrFile.objectName = "Certificate-Signing-Request";
+	this->csrFile.description = "Certificate signing request";
+	this->csrFile.filePath = "../exampleCerts/csr-389000.pem";
+	this->csrFile.isWritable = true;
+	this->csrFile.isReadable = true;
 }

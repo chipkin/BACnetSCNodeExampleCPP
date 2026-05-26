@@ -55,12 +55,20 @@ class ExampleDatabaseNetworkPort : public ExampleDatabaseBaseObject
 {
 public:
 	bool changesPending;
-	uint8_t vmac[6];						// Virtual MAC address for BACnet SC
-	std::string primaryHubUri;	// Hub WSS URI, e.g. "wss://192.168.1.100:47808"
-	std::string caCertPath;			// Path to CA certificate PEM file (optional)
-	std::string clientCertPath; // Path to client certificate PEM file (optional)
-	std::string clientKeyPath;	// Path to client private key PEM file (optional)
+	uint8_t vmac[6];					 // Virtual MAC address for BACnet SC
+	std::string primaryHubUri; // Hub WSS URI, e.g. "wss://192.168.1.100:47808"
 	ExampleDatabaseNetworkPort();
+};
+
+class ExampleDatabaseFile : public ExampleDatabaseBaseObject
+{
+public:
+	std::string description;
+	std::string filePath; // Path to the file on disk (relative)
+	bool isWritable;      // Whether BACnet AtomicWriteFile is permitted
+	bool isReadable;      // Whether BACnet AtomicReadFile is permitted
+	bool archive;         // BACnet Archive property (has been saved/archived)
+	ExampleDatabaseFile();
 };
 
 class ExampleDatabase
@@ -70,6 +78,10 @@ public:
 	ExampleDatabaseAnalogInput analogInput;
 	ExampleDatabaseDevice device;
 	ExampleDatabaseNetworkPort networkPort;
+	ExampleDatabaseFile operationalCertFile; // instance 0 - OperationalCertificateFile
+	ExampleDatabaseFile issuerCertFile1;		 // instance 1 - IssuerCertificateFiles[0]
+	ExampleDatabaseFile issuerCertFile2;		 // instance 2 - IssuerCertificateFiles[1] (slot, may be empty)
+	ExampleDatabaseFile csrFile;						 // instance 3 - CertificateSigningRequestFile
 
 	// Constructor / Destructor
 	ExampleDatabase();
